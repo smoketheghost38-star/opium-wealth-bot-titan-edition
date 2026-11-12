@@ -3,101 +3,350 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090909">
-<meta name="description" content="OPIUM WEALTH BOT: TITAN EDITION — market intelligence, charts and community.">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#08090b">
 <title>OPIUM WEALTH BOT: TITAN EDITION</title>
-<link rel="stylesheet" href="./styles.css">
+<style>
+:root{color-scheme:dark;--bg:#08090b;--panel:#12151b;--line:#292e38;--gold:#d5b45c;--muted:#9ba3b1;--green:#48d597;--red:#ff6875}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#211e14 0,#08090b 48%);color:#f4f2eb;font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:980px;margin:auto;padding:18px 13px 45px}
+header{display:flex;align-items:center;gap:11px}.crown{font-size:32px;color:var(--gold)}h1{font-size:17px;letter-spacing:1px;margin:0}.motto{color:var(--gold);font-size:9px;letter-spacing:1px;margin-top:5px}.tag{margin-left:auto;border:1px solid #65552e;color:var(--gold);border-radius:20px;padding:5px 8px;font-size:9px}
+.nav{display:flex;gap:7px;overflow:auto;margin:18px 0 8px;padding-bottom:4px}.nav button{white-space:nowrap;font-size:12px;padding:9px 12px;border-radius:30px}.nav button.active{background:var(--gold);color:#17140c;border-color:var(--gold);font-weight:800}
+.page{display:none}.page.active{display:block}.card{background:linear-gradient(145deg,#151920,#0e1116);border:1px solid var(--line);border-radius:15px;padding:15px;margin-top:12px;box-shadow:0 12px 30px #0004}
+.label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px}.section-title{font-size:14px;font-weight:750;margin-bottom:10px}.small{font-size:12px;color:var(--muted);line-height:1.5}.muted{color:var(--muted)}.gold{color:var(--gold)}.green{color:var(--green)}.notice{border:1px solid #51452a;background:#17150f;color:#d9c58d;padding:10px;border-radius:9px;font-size:11px;line-height:1.5}
+input,select,textarea{font:inherit;color:#fff;background:#0b0e13;border:1px solid #343a45;border-radius:9px;padding:11px;width:100%;outline:none;margin:4px 0 9px}textarea{resize:vertical;min-height:78px}
+button{font:inherit;color:#fff;background:#20242c;border:1px solid #3a404b;border-radius:9px;padding:10px 12px;cursor:pointer}button.primary{background:var(--gold);color:#17140c;border:0;font-weight:800}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:9px;align-items:center}.between{justify-content:space-between}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.metric{background:#0b0e13;border:1px solid var(--line);border-radius:11px;padding:12px}.metric b{display:block;margin-top:6px;font-size:15px}.pill{display:inline-block;border:1px solid #454b56;border-radius:30px;padding:4px 8px;font-size:10px;color:var(--muted)}
+.market-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.market{background:#0b0e13;border:1px solid var(--line);padding:11px;border-radius:10px}.market strong{display:block;font-size:13px}.market span{font-size:11px;color:var(--muted)}
+.messages{min-height:220px;max-height:390px;overflow:auto;background:#090c10;border:1px solid var(--line);border-radius:10px;padding:10px}.msg{padding:8px 9px;margin:7px 0;background:#171c24;border-radius:9px;font-size:12px;overflow-wrap:anywhere}.msg .meta{font-size:10px;color:var(--muted);margin-bottom:4px}.msg.admin{border-left:2px solid var(--gold)}.composer{display:flex;gap:7px;margin-top:8px}.composer input{flex:1;min-width:0}.composer button{white-space:nowrap}
+.item{border-left:3px solid var(--gold);padding:9px 11px;background:#0b0e13;border-radius:7px;margin:9px 0}.item b{display:block;margin:4px 0;font-size:13px}.item .small{white-space:pre-wrap;overflow-wrap:anywhere}
+footer{text-align:center;color:#777;font-size:10px;margin-top:22px;line-height:1.7}
+.hidden{display:none!important}
+@media(max-width:520px){.tag{font-size:8px}.grid{grid-template-columns:1fr 1fr}.market-list{grid-template-columns:1fr 1fr}}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script type="module" src="https://www.tradingview-widget.com/w/en/tv-ticker-tape.js"></script>
+<script type="module" src="https://www.tradingview-widget.com/w/en/tv-advanced-chart.js"></script>
+<script type="module" src="https://www.tradingview-widget.com/w/en/tv-economic-calendar.js"></script>
+<script type="module" src="https://www.tradingview-widget.com/w/en/tv-news-feed.js"></script>
 </head>
-<body>
-<header class="topbar">
-  <div class="brand">OPIUM WEALTH BOT:<span> TITAN EDITION</span></div>
-  <div class="header-right"><span id="connection" class="status">Not connected</span><button id="logoutBtn" class="small hidden">Log out</button></div>
-</header>
-<div class="motto">TO FIGHT AGAINST THE SPIRIT OF LIQUIDITY</div>
-<div id="configWarning" class="notice warning hidden">Online services are not configured yet. Add your Supabase URL and anon key in <code>config.js</code>, then run the SQL setup in <code>supabase/schema.sql</code>.</div>
+<body><main>
+<header><div class="crown">♛</div><div><h1>OPIUM WEALTH BOT: TITAN EDITION</h1><div class="motto">TO FIGHT AGAINST THE SPIRIT OF LIQUIDITY</div></div><div class="tag">MARKET INTELLIGENCE</div></header>
+<div class="notice" id="status" style="margin-top:13px">Starting Titan…</div>
 
-<main>
-<section id="authView" class="auth-layout">
-  <div class="hero">
-    <div class="eyebrow">MARKET INTELLIGENCE PLATFORM</div>
-    <h1>Read the market.<br><em>Respect liquidity.</em></h1>
-    <p>Charts, market analysis and a member community — built for information, not trade execution.</p>
-    <div class="credit">Developed by Leyton Nyathi</div>
-  </div>
-  <div class="panel auth-panel">
-    <h2>Member access</h2>
-    <div class="tabs"><button class="tab active" data-auth="login">Log in</button><button class="tab" data-auth="signup">Create account</button></div>
-    <form id="authForm">
-      <label>Email</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
-      <label>Password</label><input id="password" type="password" minlength="8" autocomplete="current-password" required placeholder="At least 8 characters">
-      <label id="nicknameLabel" class="hidden">Nickname</label><input id="nickname" class="hidden" maxlength="24" placeholder="Choose a display name">
-      <button class="primary full" type="submit" id="authSubmit">Log in</button>
-    </form>
-    <p id="authMessage" class="muted smalltext">Create an account to join the TITAN community.</p>
-  </div>
+<section class="card" id="authPanel">
+ <div class="section-title">Member access</div>
+ <div class="grid">
+  <div><label class="label" for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="Your email address"></div>
+  <div><label class="label" for="authPassword">Password</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"></div>
+ </div>
+ <div id="signupNameWrap"><label class="label" for="authNickname">Display name (registration only)</label><input id="authNickname" maxlength="24" placeholder="Your Titan username"></div>
+ <div class="row" style="flex-wrap:wrap"><button class="primary" id="loginBtn">Log in</button><button id="signupBtn">Create account</button></div>
+ <p class="small">If email confirmation is enabled in Supabase, confirm your email before logging in. Use a unique password.</p>
 </section>
 
-<section id="appView" class="hidden">
-  <div class="welcome-row"><div><div class="eyebrow">COMMAND CENTRE</div><h1>Welcome, <span id="welcomeName">Member</span></h1></div><span id="roleBadge" class="role">MEMBER</span></div>
-  <nav class="nav">
-    <button class="navbtn active" data-view="dashboard">Overview</button>
-    <button class="navbtn" data-view="markets">Markets & Charts</button>
-    <button class="navbtn" data-view="analysis">Analysis</button>
-    <button class="navbtn" data-view="calendar">Calendar & News</button>
-    <button class="navbtn" data-view="community">Community Chat</button>
-    <button class="navbtn" data-view="private">Admin DMs</button>
-    <button class="navbtn admin-only hidden" data-view="admin">Admin Desk</button>
-  </nav>
+<nav class="nav" aria-label="Main navigation">
+<button class="active" data-page="markets">Markets</button><button data-page="analysis">Market Desk</button><button data-page="chat">Chats</button><button data-page="calendar">Calendar & News</button><button data-page="profile">Profile</button>
+</nav>
 
-  <section class="view active" id="view-dashboard">
-    <div class="hero compact"><div class="eyebrow">OPIUM WEALTH BOT: TITAN EDITION</div><h2>Information. Insight. Discipline.</h2><p>Independent market intelligence. No broker control. No order execution.</p></div>
-    <div class="stats">
-      <div class="stat"><span>Platform mode</span><b>Information only</b></div>
-      <div class="stat"><span>Your rank</span><b id="rankValue">Rookie</b></div>
-      <div class="stat"><span>Account role</span><b id="roleValue">Member</b></div>
-    </div>
-    <div class="panel"><h2>Market snapshot</h2><div class="tv-wrap"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>{"symbols":[{"proName":"FX:EURUSD","title":"EUR/USD"},{"proName":"FX:GBPUSD","title":"GBP/USD"},{"proName":"OANDA:XAUUSD","title":"Gold"},{"proName":"OANDA:XAGUSD","title":"Silver"},{"proName":"COINBASE:BTCUSD","title":"Bitcoin"},{"proName":"NASDAQ:NDX","title":"NASDAQ 100"}],"showSymbolLogo":true,"colorTheme":"dark","isTransparent":true,"displayMode":"adaptive","locale":"en"}</script></div></div></div>
-    <div class="panel"><h2>Latest market ideas</h2><div id="ideaFeed" class="feed"><p class="muted">No published ideas yet.</p></div></div>
-  </section>
-
-  <section class="view" id="view-markets">
-    <div class="panel"><h2>Markets & live charts</h2><p class="muted">Select a symbol. Data availability and delays depend on the exchange and provider.</p>
-      <div class="chart-controls"><select id="chartSymbol"><option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:USDCHF">USD/CHF</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option><option value="FX:NZDUSD">NZD/USD</option><option value="OANDA:XAUUSD">Gold — XAU/USD</option><option value="OANDA:XAGUSD">Silver — XAG/USD</option><option value="COINBASE:BTCUSD">Bitcoin — BTC/USD</option><option value="NASDAQ:NDX">NASDAQ 100</option><option value="SP:SPX">S&P 500</option><option value="INDEX:DJI">Dow Jones</option><option value="TVC:DAX">DAX</option><option value="TVC:UKX">FTSE 100</option><option value="TVC:NI225">Nikkei 225</option></select><select id="chartInterval"><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="60" selected>1 hour</option><option value="240">4 hours</option><option value="D">1 day</option><option value="W">1 week</option></select></div>
-      <div id="chartContainer" class="chart"></div>
-    </div>
-    <div class="panel"><h2>Market watchlist</h2><div class="watchlist"><span>Major FX pairs</span><span>Gold & Silver</span><span>Bitcoin</span><span>NASDAQ & global indices</span></div></div>
-  </section>
-
-  <section class="view" id="view-analysis">
-    <div class="panel"><h2>Analysis frameworks</h2><div class="frameworks"><div><b>ICT</b><small>Liquidity, FVG, order blocks, dealing ranges</small></div><div><b>SMC</b><small>Market structure, BOS, CHoCH</small></div><div><b>Support & Resistance</b><small>Key levels and reaction zones</small></div><div><b>FRVP</b><small>POC, value area high and low</small></div><div><b>Risk review</b><small>Invalidation, confluence and risk/reward</small></div></div></div>
-    <div class="panel"><h2>Published analysis</h2><div id="analysisFeed" class="feed"><p class="muted">No analysis published yet.</p></div></div>
-  </section>
-
-  <section class="view" id="view-calendar">
-    <div class="panel"><h2>Economic calendar</h2><p class="muted">TradingView calendar embed. Confirm event times in your local timezone.</p><div class="tv-wrap"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>{"colorTheme":"dark","isTransparent":true,"width":"100%","height":"520","locale":"en","importanceFilter":"0,1","currencyFilter":"USD,EUR,GBP,JPY,AUD,CAD,CHF,NZD"}</script></div></div></div>
-    <div class="panel"><h2>Forex market news</h2><div class="tv-wrap"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>{"feedMode":"market","market":"forex","colorTheme":"dark","isTransparent":true,"displayMode":"regular","width":"100%","height":"500","locale":"en"}</script></div></div></div>
-  </section>
-
-  <section class="view" id="view-community">
-    <div class="panel"><h2>Public community chat</h2><p class="muted">Messages are shared with signed-in members in real time.</p><div id="publicMessages" class="messages"></div><form id="publicChatForm" class="compose"><input id="publicMessage" maxlength="1500" placeholder="Write to the community…" required><button class="primary">Send</button></form></div>
-  </section>
-
-  <section class="view" id="view-private">
-    <div class="panel"><h2>Private administrator messages</h2><p class="muted">Choose an administrator to start a private conversation.</p><div class="dm-layout"><div id="adminList" class="admin-list">Loading administrators…</div><div class="dm-chat"><div id="dmHeading" class="muted">Select an administrator</div><div id="dmMessages" class="messages"></div><form id="dmForm" class="compose"><input id="dmMessage" maxlength="1500" placeholder="Private message…" required disabled><button class="primary" disabled id="dmSend">Send</button></form></div></div></div>
-  </section>
-
-  <section class="view" id="view-admin">
-    <div class="panel"><h2>Administrator desk</h2><p class="muted">Authorised administrators can publish market ideas and platform bulletins.</p>
-      <form id="publishForm"><label>Post type</label><select id="postType"><option value="idea">Market idea / analysis</option><option value="bulletin">Platform bulletin</option></select><label>Headline</label><input id="postTitle" maxlength="140" required><label>Instrument (optional)</label><input id="postSymbol" maxlength="30" placeholder="e.g. XAU/USD"><label>Details</label><textarea id="postBody" rows="5" maxlength="8000" required></textarea><label>Source / context (optional)</label><input id="postSource" maxlength="500" placeholder="Source URL or context"><button class="primary">Publish</button></form><div id="adminStatus" class="muted"></div>
-    </div>
-    <div class="panel"><h2>Member directory</h2><div id="memberDirectory" class="feed">Loading…</div></div>
-  </section>
+<section class="page active" id="markets">
+ <div class="card"><div class="row between"><div><div class="label">Market universe</div><div class="section-title">Markets covered by Titan</div></div><span class="pill">No order execution</span></div>
+  <div class="label">Forex</div><div class="market-list">
+   <div class="market"><strong>EUR/USD</strong><span>Euro / US Dollar</span></div><div class="market"><strong>GBP/USD</strong><span>Pound / US Dollar</span></div><div class="market"><strong>USD/JPY</strong><span>US Dollar / Yen</span></div><div class="market"><strong>USD/CHF</strong><span>US Dollar / Swiss Franc</span></div><div class="market"><strong>AUD/USD</strong><span>Australian Dollar / US Dollar</span></div><div class="market"><strong>USD/CAD</strong><span>US Dollar / Canadian Dollar</span></div><div class="market"><strong>NZD/USD</strong><span>New Zealand Dollar / US Dollar</span></div></div>
+  <div class="label" style="margin-top:15px">Metals, crypto and indices</div><div class="market-list"><div class="market"><strong>XAU/USD</strong><span>Gold</span></div><div class="market"><strong>XAG/USD</strong><span>Silver</span></div><div class="market"><strong>BTC/USD</strong><span>Bitcoin</span></div><div class="market"><strong>NASDAQ 100</strong><span>US technology index</span></div><div class="market"><strong>S&P 500</strong><span>US large-cap index</span></div><div class="market"><strong>Dow Jones</strong><span>US blue-chip index</span></div><div class="market"><strong>DAX 40</strong><span>Germany index</span></div><div class="market"><strong>FTSE 100</strong><span>UK index</span></div><div class="market"><strong>Nikkei 225</strong><span>Japan index</span></div></div>
+ </div>
+ <div class="card"><div class="section-title">Market ticker</div><div class="small">TradingView market data. Availability and delays depend on the instrument and exchange.</div><tv-ticker-tape symbols="FX:EURUSD,FX:GBPUSD,FX:USDJPY,FX:USDCHF,FX:AUDUSD,FX:USDCAD,FX:NZDUSD,OANDA:XAUUSD,OANDA:XAGUSD,COINBASE:BTCUSD,NASDAQ:NDX,SP:SPX,INDEX:DJI,TVC:DAX,TVC:UKX,TVC:NI225" theme="dark"></tv-ticker-tape></div>
+ <div class="card"><div class="row between"><div><div class="section-title">Live chart</div><div class="small">Choose a market and timeframe</div></div><span class="pill">External data</span></div>
+  <div class="grid"><select id="liveSymbol"><optgroup label="Forex"><option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:USDCHF">USD/CHF</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option><option value="FX:NZDUSD">NZD/USD</option></optgroup><optgroup label="Metals"><option value="OANDA:XAUUSD">Gold · XAU/USD</option><option value="OANDA:XAGUSD">Silver · XAG/USD</option></optgroup><optgroup label="Crypto"><option value="COINBASE:BTCUSD">Bitcoin · BTC/USD</option></optgroup><optgroup label="Indices"><option value="NASDAQ:NDX">NASDAQ 100</option><option value="SP:SPX">S&P 500</option><option value="INDEX:DJI">Dow Jones</option><option value="TVC:DAX">DAX 40</option><option value="TVC:UKX">FTSE 100</option><option value="TVC:NI225">Nikkei 225</option></optgroup></select>
+  <select id="liveInterval"><option value="1">1 minute</option><option value="5">5 minutes</option><option value="15" selected>15 minutes</option><option value="60">1 hour</option><option value="240">4 hours</option><option value="1D">1 day</option><option value="1W">1 week</option></select></div>
+  <div id="liveChartHost" style="min-height:440px;background:#090c10;border-radius:10px;overflow:hidden;margin-top:9px"><tv-advanced-chart symbol="FX:EURUSD" interval="15" theme="dark" autosize></tv-advanced-chart></div>
+  <p class="small">Some exchange quotes may be delayed unless separately licensed. Charts are informational only.</p>
+ </div>
 </section>
+
+<section class="page" id="analysis">
+ <div class="card"><div class="section-title">Titan analysis framework</div><div class="grid">
+  <div class="metric"><div class="label">ICT</div><b>Liquidity · FVG · Order blocks · MSS</b></div><div class="metric"><div class="label">SMC</div><b>Structure · BOS · CHoCH</b></div><div class="metric"><div class="label">Technical</div><b>Support & resistance</b></div><div class="metric"><div class="label">Volume</div><b>FRVP · POC · Value area</b></div><div class="metric"><div class="label">Other methods</div><b>Trend · Momentum · Volatility</b></div><div class="metric"><div class="label">Risk review</div><b>Invalidation · Risk/reward context</b></div>
+ </div><p class="small" style="margin-top:12px">This version stores admin-published ideas and bulletins. Automated AI analysis is not connected yet.</p><div class="notice">Every market idea should state its instrument, timeframe, source, assumptions and invalidation conditions. Titan cannot open, modify or close trades.</div></div>
+ <div class="card"><div class="row between"><div class="section-title">Admin market bulletins & trade ideas</div><span class="pill" id="rolePill">Sign in required</span></div>
+  <div id="postList"><p class="small">Log in to view published posts.</p></div>
+  <div id="adminPostPanel" class="hidden"><div class="section-title" style="margin-top:15px">Publish to members</div><select id="postKind"><option value="bulletin">Market bulletin</option><option value="idea">Trade idea / setup</option></select><input id="postTitle" maxlength="140" placeholder="Headline (e.g. XAUUSD liquidity sweep)"><input id="postSymbol" maxlength="30" placeholder="Instrument (optional, e.g. XAUUSD)"><textarea id="postBody" maxlength="8000" placeholder="Market observation, analysis, timeframe and invalidation..."></textarea><input id="postSource" maxlength="500" placeholder="Source URL or source description (optional)"><button class="primary" id="publishPost">Publish bulletin</button></div>
+ </div>
+</section>
+
+<section class="page" id="chat">
+ <div class="card"><div class="row between"><div><div class="section-title">Public Titan group</div><div class="small">Messages visible to signed-in members</div></div><span class="pill">Members</span></div>
+  <div class="messages" id="publicMessages" aria-live="polite"><p class="small">Log in to load public messages.</p></div>
+  <div class="composer"><input id="publicInput" maxlength="1500" placeholder="Write a public message..." disabled><button class="primary" id="sendPublic" disabled>Send</button></div>
+ </div>
+ <div class="card"><div class="section-title">Private administrator desk</div><p class="small">Send a private message to an authorised administrator. Only the sender and recipient can read the conversation.</p>
+  <select id="adminRecipient" disabled><option value="">Log in to load administrators</option></select>
+  <div class="messages" id="privateMessages" aria-live="polite"><p class="small">Select an administrator after logging in.</p></div>
+  <div class="composer"><input id="privateInput" maxlength="1500" placeholder="Write a private message..." disabled><button class="primary" id="sendPrivate" disabled>Send</button></div>
+ </div>
+</section>
+
+<section class="page" id="calendar">
+ <div class="card"><div class="section-title">Economic calendar</div><div class="small">TradingView economic calendar widget.</div><tv-economic-calendar color-theme="dark" width="100%" height="520" importance-filter="0,1,2" currency-filter="USD,EUR,GBP,JPY,CAD,AUD,NZD,CHF"></tv-economic-calendar></div>
+ <div class="card"><div class="section-title">Market news feed</div><tv-news-feed feed-mode="market" market="forex" display-mode="regular" color-theme="dark"></tv-news-feed><p class="small">Verify important headlines against the original publisher.</p></div>
+</section>
+
+<section class="page" id="profile">
+ <div class="card"><div class="row between"><div class="section-title">Member profile</div><button id="logoutBtn">Log out</button></div>
+  <div class="grid"><div class="metric"><div class="label">Nickname</div><b id="profileName">Not signed in</b></div><div class="metric"><div class="label">Account role</div><b id="profileRole">Visitor</b></div><div class="metric"><div class="label">Rank</div><b id="profileRank">—</b></div><div class="metric"><div class="label">Trade execution</div><b class="green">Permanently disabled</b></div></div>
+  <label class="label" for="nicknameEdit" style="display:block;margin-top:14px">Change display name</label><input id="nicknameEdit" maxlength="24" placeholder="New display name" disabled><button id="saveNickname" disabled>Save display name</button>
+  <p class="small">Rank order: Rookie → Knight → Captain → Lieutenant → Commander → General → Monarch → Emperor. Rank changes are controlled by the trusted owner/admin process.</p>
+ </div>
+</section>
+
+<footer>OPIUM WEALTH BOT: TITAN EDITION<br>Developed by Leyton Nyathi<br>Information and education only · No brokerage or order execution</footer>
 </main>
-<footer>OPIUM WEALTH BOT: TITAN EDITION · Developed by Leyton Nyathi · No trade execution</footer>
-<script src="./config.js"></script>
-<script src="./app.js"></script>
-</body></html>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const statusBox = $("status");
+let db = null, currentUser = null, currentProfile = null, publicChannel = null, privateChannel = null;
+let activeAdminId = "";
+const say = (message, bad=false) => { statusBox.textContent = message; statusBox.style.borderColor = bad ? "#8d3944" : "#51452a"; };
+const escapeText = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = value => { try { return new Date(value).toLocaleString(); } catch { return ""; } };
+
+document.querySelectorAll(".nav button").forEach(button => button.addEventListener("click", () => {
+ document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b === button));
+ document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === button.dataset.page));
+}));
+
+function setSignedInUI(signedIn) {
+ $("authPanel").classList.toggle("hidden", signedIn);
+ $("logoutBtn").disabled = !signedIn;
+ $("publicInput").disabled = !signedIn;
+ $("sendPublic").disabled = !signedIn;
+ $("adminRecipient").disabled = !signedIn;
+ $("privateInput").disabled = !signedIn || !activeAdminId;
+ $("sendPrivate").disabled = !signedIn || !activeAdminId;
+ $("nicknameEdit").disabled = !signedIn;
+ $("saveNickname").disabled = !signedIn;
+}
+
+function renderPublic(rows) {
+ const host = $("publicMessages"); host.replaceChildren();
+ if (!rows.length) { host.innerHTML = '<p class="small">No messages yet. Start the conversation.</p>'; return; }
+ rows.forEach(row => {
+  const div = document.createElement("div"); div.className = "msg";
+  const meta = document.createElement("div"); meta.className = "meta";
+  meta.textContent = `${row.profiles?.nickname || "Member"} · ${fmt(row.created_at)}`;
+  const body = document.createElement("div"); body.textContent = row.body;
+  div.append(meta, body); host.append(div);
+ });
+ host.scrollTop = host.scrollHeight;
+}
+
+function renderPrivate(rows) {
+ const host = $("privateMessages"); host.replaceChildren();
+ if (!rows.length) { host.innerHTML = '<p class="small">No private messages in this conversation yet.</p>'; return; }
+ rows.forEach(row => {
+  const div = document.createElement("div"); div.className = "msg";
+  const meta = document.createElement("div"); meta.className = "meta";
+  meta.textContent = `${row.sender_id === currentUser.id ? "You" : "Administrator"} · ${fmt(row.created_at)}`;
+  const body = document.createElement("div"); body.textContent = row.body;
+  div.append(meta, body); host.append(div);
+ });
+ host.scrollTop = host.scrollHeight;
+}
+
+async function loadPublicMessages() {
+ const { data, error } = await db.from("public_messages")
+  .select("id,user_id,body,created_at,profiles(nickname)")
+  .order("created_at", { ascending: true }).limit(100);
+ if (error) { say("Could not load public chat: " + error.message, true); return; }
+ renderPublic(data || []);
+}
+
+async function loadAdmins() {
+ const { data, error } = await db.from("profiles").select("id,nickname,role").in("role", ["admin","owner"]).order("nickname");
+ if (error) { say("Could not load administrator directory: " + error.message, true); return; }
+ const select = $("adminRecipient"); select.replaceChildren();
+ if (!data || !data.length) {
+  select.innerHTML = '<option value="">No administrators found</option>';
+  activeAdminId = ""; $("privateInput").disabled = true; $("sendPrivate").disabled = true; return;
+ }
+ data.forEach(admin => {
+  const option = document.createElement("option"); option.value = admin.id;
+  option.textContent = `${admin.nickname} (${admin.role})`; select.append(option);
+ });
+ activeAdminId = select.value;
+ $("privateInput").disabled = false; $("sendPrivate").disabled = false;
+ await loadPrivateMessages();
+}
+
+async function loadPrivateMessages() {
+ if (!currentUser || !activeAdminId) return;
+ const { data, error } = await db.from("private_messages").select("id,sender_id,recipient_id,body,created_at")
+  .or(`and(sender_id.eq.${currentUser.id},recipient_id.eq.${activeAdminId}),and(sender_id.eq.${activeAdminId},recipient_id.eq.${currentUser.id})`)
+  .order("created_at", { ascending: true }).limit(100);
+ if (error) { say("Could not load private messages: " + error.message, true); return; }
+ renderPrivate(data || []);
+}
+
+async function loadPosts() {
+ const host = $("postList");
+ const { data, error } = await db.from("posts").select("id,author_id,kind,title,symbol,body,source,created_at,profiles(nickname)")
+  .order("created_at", { ascending: false }).limit(50);
+ if (error) { host.textContent = "Could not load posts: " + error.message; return; }
+ host.replaceChildren();
+ if (!data || !data.length) { host.innerHTML = '<p class="small">No admin bulletins or trade ideas have been published yet.</p>'; return; }
+ data.forEach(post => {
+  const article = document.createElement("article"); article.className = "item";
+  const meta = document.createElement("div"); meta.className = "small";
+  meta.textContent = `${post.kind === "idea" ? "TRADE IDEA" : "MARKET BULLETIN"} · ${post.symbol || "Market desk"} · ${post.profiles?.nickname || "Admin"} · ${fmt(post.created_at)}`;
+  const title = document.createElement("b"); title.textContent = post.title;
+  const body = document.createElement("div"); body.className = "small"; body.textContent = post.body;
+  article.append(meta, title, body);
+  if (post.source) { const source = document.createElement("div"); source.className = "small"; source.style.marginTop = "6px"; source.textContent = "Source: " + post.source; article.append(source); }
+  host.append(article);
+ });
+}
+
+async function stopRealtime() {
+ if (!db) return;
+ if (publicChannel) await db.removeChannel(publicChannel);
+ if (privateChannel) await db.removeChannel(privateChannel);
+ publicChannel = privateChannel = null;
+}
+function startRealtime() {
+ if (!currentUser) return;
+ if (publicChannel) db.removeChannel(publicChannel);
+ publicChannel = db.channel("titan-public-chat").on("postgres_changes",
+  {event:"INSERT",schema:"public",table:"public_messages"}, () => loadPublicMessages()).subscribe();
+ if (privateChannel) db.removeChannel(privateChannel);
+ privateChannel = db.channel("titan-private-chat-" + currentUser.id).on("postgres_changes",
+  {event:"INSERT",schema:"public",table:"private_messages"}, payload => {
+   if (payload.new.sender_id === currentUser.id || payload.new.recipient_id === currentUser.id) loadPrivateMessages();
+  }).subscribe();
+}
+
+async function refreshSession(session) {
+ currentUser = session?.user || null;
+ if (!currentUser) {
+  currentProfile = null; await stopRealtime(); setSignedInUI(false);
+  $("profileName").textContent = "Not signed in"; $("profileRole").textContent = "Visitor"; $("profileRank").textContent = "—";
+  $("rolePill").textContent = "Sign in required"; $("adminPostPanel").classList.add("hidden");
+  $("postList").innerHTML = '<p class="small">Log in to view published posts.</p>';
+  $("publicMessages").innerHTML = '<p class="small">Log in to load public messages.</p>';
+  $("privateMessages").innerHTML = '<p class="small">Log in to load private messages.</p>';
+  $("adminRecipient").innerHTML = '<option value="">Log in to load administrators</option>';
+  return;
+ }
+ setSignedInUI(true);
+ const { data: profile, error } = await db.from("profiles").select("id,nickname,role,rank").eq("id", currentUser.id).single();
+ if (error) { say("Signed in, but profile could not load: " + error.message, true); return; }
+ currentProfile = profile;
+ $("profileName").textContent = profile.nickname; $("profileRole").textContent = profile.role; $("profileRank").textContent = profile.rank;
+ $("nicknameEdit").value = profile.nickname;
+ $("rolePill").textContent = profile.role === "member" ? "Member access" : profile.role.toUpperCase();
+ $("adminPostPanel").classList.toggle("hidden", !["admin","owner"].includes(profile.role));
+ await Promise.all([loadPosts(), loadPublicMessages(), loadAdmins()]);
+ startRealtime();
+ say("Connected to Supabase as " + profile.nickname + ".");
+}
+
+async function init() {
+ if (!window.supabase || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY ||
+     window.SUPABASE_ANON_KEY === "YOUR_PUBLISHABLE_KEY") {
+  say("Configuration missing. Check config.js has your Supabase project URL and Publishable key.", true);
+  return;
+ }
+ try {
+  db = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  const { data, error } = await db.auth.getSession();
+  if (error) throw error;
+  await refreshSession(data.session);
+  db.auth.onAuthStateChange((_event, session) => { setTimeout(() => refreshSession(session), 0); });
+  if (!data.session) say("Supabase connected. Log in or create your Titan account.");
+ } catch (error) { say("Connection error: " + error.message, true); }
+}
+
+$("signupBtn").addEventListener("click", async () => {
+ const email = $("authEmail").value.trim(), password = $("authPassword").value, nickname = $("authNickname").value.trim();
+ if (!email || password.length < 6 || !nickname) { say("Enter an email, a password of at least 6 characters and a display name.", true); return; }
+ $("signupBtn").disabled = true;
+ const { error } = await db.auth.signUp({email,password,options:{data:{nickname}}});
+ $("signupBtn").disabled = false;
+ if (error) say("Registration failed: " + error.message, true);
+ else say("Registration submitted. If email confirmation is enabled, check your inbox, confirm the address, then log in.");
+});
+$("loginBtn").addEventListener("click", async () => {
+ const email = $("authEmail").value.trim(), password = $("authPassword").value;
+ if (!email || !password) { say("Enter your email and password.", true); return; }
+ $("loginBtn").disabled = true;
+ const { error } = await db.auth.signInWithPassword({email,password});
+ $("loginBtn").disabled = false;
+ if (error) say("Login failed: " + error.message, true);
+});
+$("logoutBtn").addEventListener("click", async () => {
+ const { error } = await db.auth.signOut();
+ if (error) say("Logout failed: " + error.message, true); else say("You have logged out.");
+});
+
+$("sendPublic").addEventListener("click", async () => {
+ const body = $("publicInput").value.trim(); if (!body || !currentUser) return;
+ $("sendPublic").disabled = true;
+ const { error } = await db.from("public_messages").insert({user_id:currentUser.id,body});
+ $("sendPublic").disabled = false;
+ if (error) say("Message not sent: " + error.message, true);
+ else { $("publicInput").value = ""; await loadPublicMessages(); }
+});
+$("publicInput").addEventListener("keydown", e => { if (e.key === "Enter") $("sendPublic").click(); });
+$("adminRecipient").addEventListener("change", async () => {
+ activeAdminId = $("adminRecipient").value;
+ $("privateInput").disabled = !activeAdminId; $("sendPrivate").disabled = !activeAdminId;
+ await loadPrivateMessages();
+});
+$("sendPrivate").addEventListener("click", async () => {
+ const body = $("privateInput").value.trim(); if (!body || !currentUser || !activeAdminId) return;
+ $("sendPrivate").disabled = true;
+ const { error } = await db.from("private_messages").insert({sender_id:currentUser.id,recipient_id:activeAdminId,body});
+ $("sendPrivate").disabled = false;
+ if (error) say("Private message not sent: " + error.message, true);
+ else { $("privateInput").value = ""; await loadPrivateMessages(); }
+});
+$("privateInput").addEventListener("keydown", e => { if (e.key === "Enter") $("sendPrivate").click(); });
+
+$("publishPost").addEventListener("click", async () => {
+ if (!currentUser || !currentProfile || !["admin","owner"].includes(currentProfile.role)) { say("Only authorised administrators can publish.", true); return; }
+ const title = $("postTitle").value.trim(), body = $("postBody").value.trim();
+ if (!title || !body) { say("Add a headline and the market bulletin or idea text.", true); return; }
+ const post = {author_id:currentUser.id,kind:$("postKind").value,title,symbol:$("postSymbol").value.trim() || null,body,source:$("postSource").value.trim() || null};
+ $("publishPost").disabled = true;
+ const { error } = await db.from("posts").insert(post);
+ $("publishPost").disabled = false;
+ if (error) say("Publishing failed: " + error.message, true);
+ else { $("postTitle").value = ""; $("postSymbol").value = ""; $("postBody").value = ""; $("postSource").value = ""; await loadPosts(); say("Market post published."); }
+});
+$("saveNickname").addEventListener("click", async () => {
+ if (!currentUser) return;
+ const nickname = $("nicknameEdit").value.trim();
+ if (!nickname || nickname.length > 24) { say("Display name must contain 1–24 characters.", true); return; }
+ const { error } = await db.from("profiles").update({nickname}).eq("id",currentUser.id);
+ if (error) say("Could not update display name: " + error.message, true);
+ else { $("profileName").textContent = nickname; say("Display name updated."); }
+});
+
+$("liveSymbol").addEventListener("change", updateChart);
+$("liveInterval").addEventListener("change", updateChart);
+function updateChart() {
+ const host = $("liveChartHost");
+ const chart = document.createElement("tv-advanced-chart");
+ chart.setAttribute("symbol", $("liveSymbol").value);
+ chart.setAttribute("interval", $("liveInterval").value);
+ chart.setAttribute("theme", "dark"); chart.setAttribute("autosize", "");
+ host.replaceChildren(chart);
+}
+
+init();
+})();
+</script>
+</body>
+</html>
