@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090909">
+<meta name="description" content="OPIUM WEALTH BOT: TITAN EDITION — market intelligence, charts and community.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+<title>OPIUM WEALTH BOT: TITAN EDITION</title>
+<link rel="stylesheet" href="./styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">OPIUM WEALTH BOT:<span> TITAN EDITION</span></div>
+  <div class="header-right"><span id="connection" class="status">Not connected</span><button id="logoutBtn" class="small hidden">Log out</button></div>
+</header>
+<div class="motto">TO FIGHT AGAINST THE SPIRIT OF LIQUIDITY</div>
+<div id="configWarning" class="notice warning hidden">Online services are not configured yet. Add your Supabase URL and anon key in <code>config.js</code>, then run the SQL setup in <code>supabase/schema.sql</code>.</div>
+
+<main>
+<section id="authView" class="auth-layout">
+  <div class="hero">
+    <div class="eyebrow">MARKET INTELLIGENCE PLATFORM</div>
+    <h1>Read the market.<br><em>Respect liquidity.</em></h1>
+    <p>Charts, market analysis and a member community — built for information, not trade execution.</p>
+    <div class="credit">Developed by Leyton Nyathi</div>
+  </div>
+  <div class="panel auth-panel">
+    <h2>Member access</h2>
+    <div class="tabs"><button class="tab active" data-auth="login">Log in</button><button class="tab" data-auth="signup">Create account</button></div>
+    <form id="authForm">
+      <label>Email</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <label>Password</label><input id="password" type="password" minlength="8" autocomplete="current-password" required placeholder="At least 8 characters">
+      <label id="nicknameLabel" class="hidden">Nickname</label><input id="nickname" class="hidden" maxlength="24" placeholder="Choose a display name">
+      <button class="primary full" type="submit" id="authSubmit">Log in</button>
+    </form>
+    <p id="authMessage" class="muted smalltext">Create an account to join the TITAN community.</p>
+  </div>
+</section>
+
+<section id="appView" class="hidden">
+  <div class="welcome-row"><div><div class="eyebrow">COMMAND CENTRE</div><h1>Welcome, <span id="welcomeName">Member</span></h1></div><span id="roleBadge" class="role">MEMBER</span></div>
+  <nav class="nav">
+    <button class="navbtn active" data-view="dashboard">Overview</button>
+    <button class="navbtn" data-view="markets">Markets & Charts</button>
+    <button class="navbtn" data-view="analysis">Analysis</button>
+    <button class="navbtn" data-view="calendar">Calendar & News</button>
+    <button class="navbtn" data-view="community">Community Chat</button>
+    <button class="navbtn" data-view="private">Admin DMs</button>
+    <button class="navbtn admin-only hidden" data-view="admin">Admin Desk</button>
+  </nav>
+
+  <section class="view active" id="view-dashboard">
+    <div class="hero compact"><div class="eyebrow">OPIUM WEALTH BOT: TITAN EDITION</div><h2>Information. Insight. Discipline.</h2><p>Independent market intelligence. No broker control. No order execution.</p></div>
+    <div class="stats">
+      <div class="stat"><span>Platform mode</span><b>Information only</b></div>
+      <div class="stat"><span>Your rank</span><b id="rankValue">Rookie</b></div>
+      <div class="stat"><span>Account role</span><b id="roleValue">Member</b></div>
+    </div>
+    <div class="panel"><h2>Market snapshot</h2><div class="tv-wrap"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>{"symbols":[{"proName":"FX:EURUSD","title":"EUR/USD"},{"proName":"FX:GBPUSD","title":"GBP/USD"},{"proName":"OANDA:XAUUSD","title":"Gold"},{"proName":"OANDA:XAGUSD","title":"Silver"},{"proName":"COINBASE:BTCUSD","title":"Bitcoin"},{"proName":"NASDAQ:NDX","title":"NASDAQ 100"}],"showSymbolLogo":true,"colorTheme":"dark","isTransparent":true,"displayMode":"adaptive","locale":"en"}</script></div></div></div>
+    <div class="panel"><h2>Latest market ideas</h2><div id="ideaFeed" class="feed"><p class="muted">No published ideas yet.</p></div></div>
+  </section>
+
+  <section class="view" id="view-markets">
+    <div class="panel"><h2>Markets & live charts</h2><p class="muted">Select a symbol. Data availability and delays depend on the exchange and provider.</p>
+      <div class="chart-controls"><select id="chartSymbol"><option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:USDCHF">USD/CHF</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option><option value="FX:NZDUSD">NZD/USD</option><option value="OANDA:XAUUSD">Gold — XAU/USD</option><option value="OANDA:XAGUSD">Silver — XAG/USD</option><option value="COINBASE:BTCUSD">Bitcoin — BTC/USD</option><option value="NASDAQ:NDX">NASDAQ 100</option><option value="SP:SPX">S&P 500</option><option value="INDEX:DJI">Dow Jones</option><option value="TVC:DAX">DAX</option><option value="TVC:UKX">FTSE 100</option><option value="TVC:NI225">Nikkei 225</option></select><select id="chartInterval"><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="60" selected>1 hour</option><option value="240">4 hours</option><option value="D">1 day</option><option value="W">1 week</option></select></div>
+      <div id="chartContainer" class="chart"></div>
+    </div>
+    <div class="panel"><h2>Market watchlist</h2><div class="watchlist"><span>Major FX pairs</span><span>Gold & Silver</span><span>Bitcoin</span><span>NASDAQ & global indices</span></div></div>
+  </section>
+
+  <section class="view" id="view-analysis">
+    <div class="panel"><h2>Analysis frameworks</h2><div class="frameworks"><div><b>ICT</b><small>Liquidity, FVG, order blocks, dealing ranges</small></div><div><b>SMC</b><small>Market structure, BOS, CHoCH</small></div><div><b>Support & Resistance</b><small>Key levels and reaction zones</small></div><div><b>FRVP</b><small>POC, value area high and low</small></div><div><b>Risk review</b><small>Invalidation, confluence and risk/reward</small></div></div></div>
+    <div class="panel"><h2>Published analysis</h2><div id="analysisFeed" class="feed"><p class="muted">No analysis published yet.</p></div></div>
+  </section>
+
+  <section class="view" id="view-calendar">
+    <div class="panel"><h2>Economic calendar</h2><p class="muted">TradingView calendar embed. Confirm event times in your local timezone.</p><div class="tv-wrap"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>{"colorTheme":"dark","isTransparent":true,"width":"100%","height":"520","locale":"en","importanceFilter":"0,1","currencyFilter":"USD,EUR,GBP,JPY,AUD,CAD,CHF,NZD"}</script></div></div></div>
+    <div class="panel"><h2>Forex market news</h2><div class="tv-wrap"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>{"feedMode":"market","market":"forex","colorTheme":"dark","isTransparent":true,"displayMode":"regular","width":"100%","height":"500","locale":"en"}</script></div></div></div>
+  </section>
+
+  <section class="view" id="view-community">
+    <div class="panel"><h2>Public community chat</h2><p class="muted">Messages are shared with signed-in members in real time.</p><div id="publicMessages" class="messages"></div><form id="publicChatForm" class="compose"><input id="publicMessage" maxlength="1500" placeholder="Write to the community…" required><button class="primary">Send</button></form></div>
+  </section>
+
+  <section class="view" id="view-private">
+    <div class="panel"><h2>Private administrator messages</h2><p class="muted">Choose an administrator to start a private conversation.</p><div class="dm-layout"><div id="adminList" class="admin-list">Loading administrators…</div><div class="dm-chat"><div id="dmHeading" class="muted">Select an administrator</div><div id="dmMessages" class="messages"></div><form id="dmForm" class="compose"><input id="dmMessage" maxlength="1500" placeholder="Private message…" required disabled><button class="primary" disabled id="dmSend">Send</button></form></div></div></div>
+  </section>
+
+  <section class="view" id="view-admin">
+    <div class="panel"><h2>Administrator desk</h2><p class="muted">Authorised administrators can publish market ideas and platform bulletins.</p>
+      <form id="publishForm"><label>Post type</label><select id="postType"><option value="idea">Market idea / analysis</option><option value="bulletin">Platform bulletin</option></select><label>Headline</label><input id="postTitle" maxlength="140" required><label>Instrument (optional)</label><input id="postSymbol" maxlength="30" placeholder="e.g. XAU/USD"><label>Details</label><textarea id="postBody" rows="5" maxlength="8000" required></textarea><label>Source / context (optional)</label><input id="postSource" maxlength="500" placeholder="Source URL or context"><button class="primary">Publish</button></form><div id="adminStatus" class="muted"></div>
+    </div>
+    <div class="panel"><h2>Member directory</h2><div id="memberDirectory" class="feed">Loading…</div></div>
+  </section>
+</section>
+</main>
+<footer>OPIUM WEALTH BOT: TITAN EDITION · Developed by Leyton Nyathi · No trade execution</footer>
+<script src="./config.js"></script>
+<script src="./app.js"></script>
+</body></html>
